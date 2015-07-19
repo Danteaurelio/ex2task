@@ -1,14 +1,11 @@
 storageEngine = function() {
 	var initialized = false;
 	var initializedObjectStores = {};
-	
 	function getStorageObject(type) {
-				var item = localStorage.getItem(type);
-				var parsedItem = JSON.parse(item);
-				return parsedItem;
-			}
-
-	
+		var item = localStorage.getItem(type);
+		var parsedItem = JSON.parse(item);
+		return parsedItem;
+	}
 	return {
 		init : function(successCallback, errorCallback) {
 			if (window.localStorage) {
@@ -38,9 +35,7 @@ storageEngine = function() {
 			if (!obj.id) {
 				obj.id = $.now();
 			}
-			
-     		var storageItem = getStorageObject(type); 
-	
+			var storageItem = getStorageObject(type); 
 			storageItem[obj.id] = obj;
 			localStorage.setItem(type, JSON.stringify(storageItem));
 			successCallback(obj);
@@ -52,11 +47,13 @@ storageEngine = function() {
 				errorCallback('store_not_initialized', 'The object store '+type+' has not been initialized');
 			}
 			var result = [];
+
 			var storageItem = getStorageObject(type);
 			$.each(storageItem, function(i, v) {
 				result.push(v);
 			});
 			successCallback(result);
+
 		},
 		delete : function(type, id, successCallback, errorCallback) { 
 			if (!initialized) {

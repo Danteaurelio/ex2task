@@ -9,7 +9,16 @@
 <script src= "scripts/jquery-serialization.js"></script>
 <script src= "scripts/tasks-controller.js"></script>
 <script src= "scripts/jquery.validate.js"></script>
-<script src= "scripts/tasks-webstorage.js"></script>
+	
+<script src= "scripts/date.js"></script>
+	
+	<!--	
+<script src= "scripts/core.js"></script>
+<script src= "scripts/date.js"></script>
+<script src= "scripts/parser.js"></script>
+<script src= "scripts/date-pt-BR.js"></script>
+-->	
+
 	
 </head>
 <body>
@@ -22,6 +31,7 @@
 				<div>
 					<label>Tarefa</label>
 					<input type="hidden" name="id" />
+					<input type="hidden" name="completada" />
 					<input type="text" required="required" name="task" class="large" placeholder="Estudar e programar" maxlength="200"/>
 				</div>
 				<div>
@@ -66,19 +76,21 @@
 			</nav>
 		</section>
 	</main>
-	<footer>Você tem 3 tarefas</footer>
+	<footer>Você tem <span id="taskCount">0</span> tarefas</footer>
 </body>
 	
 	
 	<script id="taskRow" type="text/x-jQuery-tmpl">
-		<tr>
-			<td>${task}</td>
-			<td><time datetime="${requiredBy}"> ${requiredBy}</time></td>
-			<td>${category}</td>
+		<tr id="${id}" >
+			<td {{if completada == true}} class="taskCompleted" {{/if}} >${task}</td>
+			<td {{if completada == true}} class="taskCompleted" {{/if}} ><time datetime="${requiredBy}"> ${requiredBy}</time></td>
+			<td {{if completada == true}} class="taskCompleted" {{/if}}>${category}</td>
 			<td>
 				<nav>
+				{{if completada != true}}
 					<a href="#" class="editRow" data-task-id="${id}">Editar</a>					
-					<a href="#" class="completeRow">Completar</a>
+					<a href="#" class="completeRow" data-task-id="${id}">Completar</a>
+				{{/if}}	
 					<a href="#" class="deleteRow" data-task-id="${id}">Deletar</
 				</nav>
 			</td>
@@ -87,8 +99,32 @@
 	
 	<script>
 		$(document).ready(function() {
-			tasksController.init($('#taskPage'));
-			tasksController.loadTasks();
+			if (window.indexedDB) { 
+				$.getScript( "scripts/tasks-indexeddb.js" )
+				.done(function( script, textStatus ) {
+						
+					tasksController.init($('#taskPage'));
+					tasksController.loadTasks();
+				})
+				.fail(function( jqxhr, settings, exception ) {
+					console.log( 'Falhou ao carregar script de indexed db' );
+				});
+			} else if (window.localStorage) {
+				$.getScript( "scripts/tasks-webstorage.js" )
+				.done(function( script, textStatus ) {
+						
+					tasksController.init($('#taskPage'));
+					tasksController.loadTasks();
+				})
+				.fail(function( jqxhr, settings, exception ) {
+					console.log( 'Falhou ao carregar script de web storage' );
+				});
+			}
+			
+		
+			
+			
+						
 		});
 
 	</script>
