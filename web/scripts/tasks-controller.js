@@ -108,8 +108,10 @@ tasksController = function() {
 										
 									if(dataTarefa.compareTo(hoje)<0) {
 										$(taskPage).find("#"+task.id).addClass("overdue");
-										     } else 
+										   console.log('overdue');
+										  } else 
 											  if (hoje.addDays(1).compareTo(dataTarefa)==0) {											  
+											   console.log('passou');
 											   $(taskPage).find("#"+task.id).addClass("warning");
 											  
 										  }	
@@ -130,6 +132,7 @@ tasksController = function() {
 							function(tasks) {
 							  var cont =0;
 								$.each(tasks, function(index, task) {
+									console.log(!task.completada);
 									if(task.completada!=true){
 									cont=cont+1;
 									}

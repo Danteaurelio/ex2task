@@ -102,9 +102,9 @@
 			if (window.indexedDB) { 
 				$.getScript( "scripts/tasks-indexeddb.js" )
 				.done(function( script, textStatus ) {
-						
+											
 					tasksController.init($('#taskPage'));
-					tasksController.loadTasks();
+					
 				})
 				.fail(function( jqxhr, settings, exception ) {
 					console.log( 'Falhou ao carregar script de indexed db' );
@@ -114,7 +114,7 @@
 				.done(function( script, textStatus ) {
 						
 					tasksController.init($('#taskPage'));
-					tasksController.loadTasks();
+			
 				})
 				.fail(function( jqxhr, settings, exception ) {
 					console.log( 'Falhou ao carregar script de web storage' );
@@ -123,7 +123,7 @@
 			
 		
 			
-			
+			tasksController.loadTasks();
 						
 		});
 
