@@ -9,6 +9,8 @@
 <script src= "scripts/jquery-serialization.js"></script>
 <script src= "scripts/tasks-controller.js"></script>
 <script src= "scripts/jquery.validate.js"></script>
+<script src= "scripts/tasks-webstorage.js"></script>
+
 	
 <script src= "scripts/date.js"></script>
 	
@@ -98,34 +100,32 @@
 	</script>
 	
 	<script>
-		$(document).ready(function() {
-			if (window.indexedDB) { 
-				$.getScript( "scripts/tasks-indexeddb.js" )
-				.done(function( script, textStatus ) {
-											
-					tasksController.init($('#taskPage'));
-					
-				})
-				.fail(function( jqxhr, settings, exception ) {
-					console.log( 'Falhou ao carregar script de indexed db' );
-				});
-			} else if (window.localStorage) {
-				$.getScript( "scripts/tasks-webstorage.js" )
-				.done(function( script, textStatus ) {
-						
-					tasksController.init($('#taskPage'));
-			
-				})
-				.fail(function( jqxhr, settings, exception ) {
-					console.log( 'Falhou ao carregar script de web storage' );
-				});
-			}
-			
-		
-			
+		function initScreen(){
+	$(document).ready(function(){
+
+	tasksController.init($('#taskPage'), function(){
 			tasksController.loadTasks();
-						
 		});
+	});
+		}
+		if(window.indexedDB){
+			$.getScript("scripts/tasks-indexeddb.js")
+			.done(function(script,textStatus){
+				initScreen();
+			})
+			.fail(function(jqxhr, settings, exception){
+				console.log('Failed to load indexed db script');
+			});
+		}
+		else if(window.localStorage){
+			$.getScript("scripts/tasks-webstorage.js")
+			.done(function(script, textStatus){
+				initScreen();
+			})
+			.fail(function(jqxhr, settings, exception){
+				console.log('Failed to load web storage script');
+			});
+		}
 
 	</script>
 	
