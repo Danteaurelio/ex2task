@@ -2,17 +2,29 @@ tasksController = function() {
 	function errorLogger(errorCode, errorMessage) {
 		console.log(errorCode +':'+ errorMessage);
 	}
-	//Função que conta as linhas que está dentro de tbody
-	function taskCountChanged() {
-	    var count = $(taskPage).find('#tblTasks tbody tr').length;
-	    $('footer').find('#taskCount').text(count);
+	//Contar task
+	function contaTask() {
+	   storageEngine.findAll('task', 
+							function(tasks) {
+							  var cont =0;
+								$.each(tasks, function(index, task) {
+									if(task.complete!=true){
+									cont=cont+1;
+									}
+								});
+							
+								$('#taskCount').empty()
+								$('#taskCount').append(cont);
+								
+							}, 
+							errorLogger);
 	}
-	//Limpar campos
-	  function clearTask() {
+	//Limpar campos do formulário
+	  function limpaCampoTask() {
 	    $(taskPage).find('form').fromObject({});
 	  }
-	//Função para marcar as tarefas que estão atrasadas
-	function renderTable() {
+	// Destacar tarefas que já passaram do deadline
+	function destacarTask() {
 	    $.each($(taskPage).find('#tblTasks tbody tr'), function(idx, row) {
 	      var due = Date.parse($(row).find('[datetime]').text());
 	      if(due.compareTo(Date.today()) < 0) {
@@ -44,17 +56,17 @@ tasksController = function() {
 				$(taskPage).find('tbody tr' ).click(function(evt) {
 					$(evt.target ).closest('td').siblings( ).andSelf( ).toggleClass( 'rowHighlight');
 				});
-				//Deleta a tarefa
+				//Deleta task
 				$(taskPage).find('#tblTasks tbody').on('click', '.deleteRow', function(evt) { 					
-						console.log('teste');
+						
 						storageEngine.delete('task', $(evt.target).data().taskId, 
 							function() {
 								$(evt.target).parents('tr').remove(); 
-								taskCountChanged();
+								contaTask();
 							}, errorLogger);
 					}
 				);	
-				//Salva a tarefa
+				//Salva a task
 				$(taskPage).find('#saveTask').click(function(evt) {
 					evt.preventDefault();
 					if ($(taskPage).find('form').valid()) {
@@ -62,14 +74,14 @@ tasksController = function() {
 						storageEngine.save('task', task, function() {
 							$(taskPage).find('#tblTasks tbody').empty();
 							tasksController.loadTasks();
-							clearTask();
+							limpaCampoTask();
 							$(':input').val('');
 							$(taskPage).find('#taskCreation').addClass('not');
 						}, errorLogger);
 					initialised = true;
 					}				
 				});
-				//Edita a tarefa
+				//Edita task
 				$(taskPage).find('#tblTasks tbody').on('click', '.editRow',function(evt){ 
 								$(taskPage).find('#taskCreation').removeClass('not');
 								storageEngine.findById('task', $(evt.target).data().taskId, function(task) {
@@ -80,15 +92,16 @@ tasksController = function() {
 				//Realiza a limpeza
 				$(taskPage).find('#clearTask').click(function(evt) {
 					  evt.preventDefault();
-					  clearTask();
+					  limpaCampoTask();
 				});
-				//Verificação de tarefas realizadas aplicando as cores que está no css
+				//Marcar tarefas como completadas
 			       $(taskPage).find('#tblTasks tbody').on('click', '.completeRow', function(evt) {           
 				  storageEngine.findById('task', $(evt.target).data().taskId, function(task) {
 				    task.complete = true;
 				    storageEngine.save('task', task, function() {
 				      tasksController.loadTasks();
-				      clearTask();
+						
+				      limpaCampoTask();
 				    },errorLogger);
 				  }, errorLogger);
 				});
@@ -97,7 +110,7 @@ tasksController = function() {
 			loadTasks : function() {
 			$(taskPage).find('#tblTasks tbody').empty();
 			storageEngine.findAll('task',function(tasks) {
-					//Ordenação pela data da tarefa 					
+					//Ordenação tarefa					
 					tasks.sort(function(o1, o2) {
 						  return Date.parse(o1.requiredBy).compareTo(Date.parse(o2.requiredBy));
 					});
@@ -107,9 +120,9 @@ tasksController = function() {
 						    task.complete = false;
 					 }
 					$('#taskRow').tmpl(task).appendTo($(taskPage).find( '#tblTasks tbody'));
-					//Realiza a chamada para fazer a contagem						
-					taskCountChanged();
-					renderTable();
+									
+					contaTask();
+					destacarTask();
 					});
 				}, 
 				errorLogger);
